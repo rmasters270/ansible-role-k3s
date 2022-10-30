@@ -16,12 +16,18 @@
     state: present
     reload: yes
 
+- name: Check if ipv6 is enabled
+  stat:
+    path: /proc/sys/net/ipv6
+  register: ipv6_stat
+
 - name: Enable IPv6 forwarding
   sysctl:
     name: net.ipv6.conf.all.forwarding
     value: "1"
     state: present
     reload: yes
+  when: ipv6_stat.stat.exists
 
 - name: Enable IPv6 router advertisements
   sysctl:
@@ -29,6 +35,7 @@
     value: "2"
     state: present
     reload: yes
+  when: ipv6_stat.stat.exists
 
 - name: Add br_netfilter to /etc/modules-load.d/
   copy:
